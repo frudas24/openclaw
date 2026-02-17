@@ -9,6 +9,7 @@ import {
 import { loadOrCreateDeviceIdentity } from "../infra/device-identity.js";
 import { pickPrimaryTailnetIPv4 } from "../infra/tailnet.js";
 import { loadGatewayTlsRuntime } from "../infra/tls/gateway.js";
+import { normalizeGatewayAdvertiseHost } from "../shared/net/host.js";
 import {
   GATEWAY_CLIENT_MODES,
   GATEWAY_CLIENT_NAMES,
@@ -101,6 +102,7 @@ export function buildGatewayConnectionDetails(
   const localPort = resolveGatewayPort(config);
   const tailnetIPv4 = pickPrimaryTailnetIPv4();
   const bindMode = config.gateway?.bind ?? "loopback";
+  const advertiseHost = normalizeGatewayAdvertiseHost(config.gateway?.advertiseHost);
   const customBindHostRaw = config.gateway?.customBindHost?.trim();
   const customBindHost =
     typeof customBindHostRaw === "string" && isCustomBindHostAvailableLocally(customBindHostRaw)
@@ -111,8 +113,9 @@ export function buildGatewayConnectionDetails(
   const preferCustom = bindMode === "custom" && !!customBindHost;
   const lanIPv4 = preferLan ? pickPrimaryLanIPv4() : undefined;
   const scheme = tlsEnabled ? "wss" : "ws";
-  const localUrl =
-    preferTailnet && tailnetIPv4
+  const localUrl = advertiseHost
+    ? `${scheme}://${advertiseHost}:${localPort}`
+    : preferTailnet && tailnetIPv4
       ? `${scheme}://${tailnetIPv4}:${localPort}`
       : preferLan && lanIPv4
         ? `${scheme}://${lanIPv4}:${localPort}`
@@ -133,13 +136,15 @@ export function buildGatewayConnectionDetails(
       ? "config gateway.remote.url"
       : remoteMisconfigured
         ? "missing gateway.remote.url (fallback local)"
-        : preferTailnet && tailnetIPv4
-          ? `local tailnet ${tailnetIPv4}`
-          : preferLan && lanIPv4
-            ? `local lan ${lanIPv4}`
-            : preferCustom && customBindHost
-              ? `local custom ${customBindHost}`
-              : "local loopback";
+        : advertiseHost
+          ? `local advertised ${advertiseHost}`
+          : preferTailnet && tailnetIPv4
+            ? `local tailnet ${tailnetIPv4}`
+            : preferLan && lanIPv4
+              ? `local lan ${lanIPv4}`
+              : preferCustom && customBindHost
+                ? `local custom ${customBindHost}`
+                : "local loopback";
   const remoteFallbackNote = remoteMisconfigured
     ? "Warn: gateway.mode=remote but gateway.remote.url is missing; set gateway.remote.url or switch gateway.mode=local."
     : undefined;

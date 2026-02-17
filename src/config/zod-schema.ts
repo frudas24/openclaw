@@ -396,6 +396,7 @@ export const OpenClawSchema = z
           ])
           .optional(),
         customBindHost: z.string().optional(),
+        advertiseHost: z.string().optional(),
         controlUi: z
           .object({
             enabled: z.boolean().optional(),

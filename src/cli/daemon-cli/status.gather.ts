@@ -35,6 +35,7 @@ type GatewayStatusSummary = {
   bindMode: GatewayBindMode;
   bindHost: string;
   customBindHost?: string;
+  advertiseHost?: string;
   port: number;
   portSource: "service args" | "env/config";
   probeUrl: string;
@@ -177,9 +178,10 @@ export async function gatherDaemonStatus(
     | "custom"
     | "tailnet";
   const customBindHost = daemonCfg.gateway?.customBindHost;
+  const advertiseHost = daemonCfg.gateway?.advertiseHost;
   const bindHost = await resolveGatewayBindHost(bindMode, customBindHost);
   const tailnetIPv4 = pickPrimaryTailnetIPv4();
-  const probeHost = pickProbeHostForBind(bindMode, tailnetIPv4, customBindHost);
+  const probeHost = pickProbeHostForBind(bindMode, tailnetIPv4, customBindHost, advertiseHost);
   const probeUrlOverride =
     typeof opts.rpc.url === "string" && opts.rpc.url.trim().length > 0 ? opts.rpc.url.trim() : null;
   const probeUrl = probeUrlOverride ?? `ws://${probeHost}:${daemonPort}`;
@@ -261,6 +263,7 @@ export async function gatherDaemonStatus(
       bindMode,
       bindHost,
       customBindHost,
+      advertiseHost,
       port: daemonPort,
       portSource,
       probeUrl,

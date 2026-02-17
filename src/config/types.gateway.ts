@@ -296,6 +296,12 @@ export type GatewayConfig = {
   bind?: GatewayBindMode;
   /** Custom IP address for bind="custom" mode. Fallback: 0.0.0.0. */
   customBindHost?: string;
+  /**
+   * Optional host (IP or DNS) advertised to local tools/links for connecting to the gateway.
+   * This does not change the server listen socket; it only changes generated/probed URLs.
+   * Useful for Docker/service DNS names (e.g. "openclaw-gateway").
+   */
+  advertiseHost?: string;
   controlUi?: GatewayControlUiConfig;
   auth?: GatewayAuthConfig;
   tailscale?: GatewayTailscaleConfig;

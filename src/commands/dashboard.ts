@@ -23,6 +23,7 @@ export async function dashboardCommand(
   const bind = cfg.gateway?.bind ?? "loopback";
   const basePath = cfg.gateway?.controlUi?.basePath;
   const customBindHost = cfg.gateway?.customBindHost;
+  const advertiseHost = cfg.gateway?.advertiseHost;
   const token = cfg.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN ?? "";
 
   // LAN URLs fail secure-context checks in browsers.
@@ -31,6 +32,7 @@ export async function dashboardCommand(
     port,
     bind: bind === "lan" ? "loopback" : bind,
     customBindHost,
+    advertiseHost,
     basePath,
   });
   // Prefer URL fragment to avoid leaking auth tokens via query params.

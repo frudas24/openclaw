@@ -93,6 +93,17 @@ describe("resolveControlUiLinks", () => {
     expect(links.wsUrl).toBe("ws://127.0.0.1:18789");
   });
 
+  it("prefers advertiseHost over bind-derived host", () => {
+    const links = resolveControlUiLinks({
+      port: 18789,
+      bind: "custom",
+      customBindHost: "192.168.1.100",
+      advertiseHost: "openclaw-gateway",
+    });
+    expect(links.httpUrl).toBe("http://openclaw-gateway:18789/");
+    expect(links.wsUrl).toBe("ws://openclaw-gateway:18789");
+  });
+
   it("uses tailnet IP for tailnet bind", () => {
     mocks.pickPrimaryTailnetIPv4.mockReturnValueOnce("100.64.0.9");
     const links = resolveControlUiLinks({

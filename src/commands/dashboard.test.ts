@@ -35,6 +35,7 @@ function mockSnapshot(params?: {
   token?: string;
   bind?: GatewayBindMode;
   customBindHost?: string;
+  advertiseHost?: string;
 }) {
   const token = params?.token ?? "abc123";
   mocks.readConfigFileSnapshot.mockResolvedValue({
@@ -48,6 +49,7 @@ function mockSnapshot(params?: {
         auth: { token },
         bind: params?.bind,
         customBindHost: params?.customBindHost,
+        advertiseHost: params?.advertiseHost,
       },
     },
     issues: [],
@@ -81,6 +83,7 @@ describe("dashboardCommand bind selection", () => {
       port: 18789,
       bind: "loopback",
       customBindHost: undefined,
+      advertiseHost: undefined,
       basePath: undefined,
     });
   });
@@ -94,6 +97,7 @@ describe("dashboardCommand bind selection", () => {
       port: 18789,
       bind: "loopback",
       customBindHost: undefined,
+      advertiseHost: undefined,
       basePath: undefined,
     });
   });
@@ -107,6 +111,7 @@ describe("dashboardCommand bind selection", () => {
       port: 18789,
       bind: "custom",
       customBindHost: "10.0.0.5",
+      advertiseHost: undefined,
       basePath: undefined,
     });
   });
@@ -120,6 +125,7 @@ describe("dashboardCommand bind selection", () => {
       port: 18789,
       bind: "tailnet",
       customBindHost: undefined,
+      advertiseHost: undefined,
       basePath: undefined,
     });
   });

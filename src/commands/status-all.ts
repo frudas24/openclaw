@@ -228,6 +228,7 @@ export async function statusAllCommand(
           port,
           bind: cfg.gateway?.bind,
           customBindHost: cfg.gateway?.customBindHost,
+          advertiseHost: cfg.gateway?.advertiseHost,
           basePath: cfg.gateway?.controlUi?.basePath,
         }).httpUrl
       : null;

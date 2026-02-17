@@ -44,6 +44,28 @@ describe("pairing setup code", () => {
     });
   });
 
+  it("prefers gateway.advertiseHost when configured", async () => {
+    const resolved = await resolvePairingSetupFromConfig({
+      gateway: {
+        bind: "lan",
+        advertiseHost: "openclaw-gateway",
+        port: 19001,
+        auth: { mode: "token", token: "tok_123" },
+      },
+    });
+
+    expect(resolved).toEqual({
+      ok: true,
+      payload: {
+        url: "ws://openclaw-gateway:19001",
+        token: "tok_123",
+        password: undefined,
+      },
+      authLabel: "token",
+      urlSource: "gateway.advertiseHost",
+    });
+  });
+
   it("honors env token override", async () => {
     const resolved = await resolvePairingSetupFromConfig(
       {

@@ -79,6 +79,7 @@ describe("dashboardCommand", () => {
       port: 18789,
       bind: "loopback",
       customBindHost: undefined,
+      advertiseHost: undefined,
       basePath: undefined,
     });
     expect(copyToClipboardMock).toHaveBeenCalledWith("http://127.0.0.1:18789/#token=abc123");

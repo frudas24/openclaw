@@ -15,6 +15,7 @@ import { pickPrimaryTailnetIPv4 } from "../infra/tailnet.js";
 import { isWSL } from "../infra/wsl.js";
 import { runCommandWithTimeout } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
+import { normalizeGatewayAdvertiseHost } from "../shared/net/host.js";
 import { stylePromptTitle } from "../terminal/prompt-style.js";
 import {
   CONFIG_DIR,
@@ -56,6 +57,9 @@ export function summarizeExistingConfig(config: OpenClawConfig): string {
   }
   if (config.gateway?.bind) {
     rows.push(shortenHomeInString(`gateway.bind: ${config.gateway.bind}`));
+  }
+  if (config.gateway?.advertiseHost) {
+    rows.push(shortenHomeInString(`gateway.advertiseHost: ${config.gateway.advertiseHost}`));
   }
   if (config.gateway?.remote?.url) {
     rows.push(shortenHomeInString(`gateway.remote.url: ${config.gateway.remote.url}`));
@@ -459,13 +463,18 @@ export function resolveControlUiLinks(params: {
   port: number;
   bind?: "auto" | "lan" | "loopback" | "custom" | "tailnet";
   customBindHost?: string;
+  advertiseHost?: string;
   basePath?: string;
 }): { httpUrl: string; wsUrl: string } {
   const port = params.port;
   const bind = params.bind ?? "loopback";
+  const advertiseHost = normalizeGatewayAdvertiseHost(params.advertiseHost);
   const customBindHost = params.customBindHost?.trim();
   const tailnetIPv4 = pickPrimaryTailnetIPv4();
   const host = (() => {
+    if (advertiseHost) {
+      return advertiseHost;
+    }
     if (bind === "custom" && customBindHost && isValidIPv4(customBindHost)) {
       return customBindHost;
     }

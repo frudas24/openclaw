@@ -128,6 +128,18 @@ describe("callGateway url resolution", () => {
     expect(lastClientOptions?.url).toBe("ws://192.168.1.42:18800");
   });
 
+  it("prefers advertised host when configured", async () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "loopback", advertiseHost: "openclaw-gateway" },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+
+    await callGateway({ method: "health" });
+
+    expect(lastClientOptions?.url).toBe("ws://openclaw-gateway:18800");
+  });
+
   it("falls back to loopback when bind is lan but no LAN IP found", async () => {
     loadConfig.mockReturnValue({ gateway: { mode: "local", bind: "lan" } });
     resolveGatewayPort.mockReturnValue(18800);
@@ -244,6 +256,34 @@ describe("buildGatewayConnectionDetails", () => {
     expect(details.url).toBe("ws://10.0.0.5:18800");
     expect(details.urlSource).toBe("local lan 10.0.0.5");
     expect(details.bindDetail).toBe("Bind: lan");
+  });
+
+  it("uses advertised host and reports source when configured", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "loopback", advertiseHost: "openclaw-gateway" },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+
+    const details = buildGatewayConnectionDetails();
+
+    expect(details.url).toBe("ws://openclaw-gateway:18800");
+    expect(details.urlSource).toBe("local advertised openclaw-gateway");
+    expect(details.bindDetail).toBe("Bind: loopback");
+  });
+
+  it("falls back when advertised host is invalid", () => {
+    loadConfig.mockReturnValue({
+      gateway: { mode: "local", bind: "loopback", advertiseHost: "http://bad-host" },
+    });
+    resolveGatewayPort.mockReturnValue(18800);
+    pickPrimaryTailnetIPv4.mockReturnValue(undefined);
+
+    const details = buildGatewayConnectionDetails();
+
+    expect(details.url).toBe("ws://127.0.0.1:18800");
+    expect(details.urlSource).toBe("local loopback");
+    expect(details.bindDetail).toBe("Bind: loopback");
   });
 
   it("uses custom bind host and reports custom source when bind is custom", () => {

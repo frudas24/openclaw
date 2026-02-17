@@ -7,6 +7,10 @@ import {
 } from "../gateway/gateway-config-prompts.shared.js";
 import { findTailscaleBinary } from "../infra/tailscale.js";
 import type { RuntimeEnv } from "../runtime.js";
+import {
+  normalizeGatewayAdvertiseHost,
+  validateGatewayAdvertiseHostInput,
+} from "../shared/net/host.js";
 import { validateIPv4AddressInput } from "../shared/net/ipv4.js";
 import { note } from "../terminal/note.js";
 import { buildGatewayAuthConfig } from "./configure.gateway-auth.js";
@@ -64,8 +68,8 @@ export async function promptGatewayConfig(
         },
         {
           value: "custom",
-          label: "Custom IP",
-          hint: "Specify a specific IP address, with 0.0.0.0 fallback if unavailable",
+          label: "Custom IP (bind)",
+          hint: "Bind to a specific local IPv4; use Connect Host below for DNS names",
         },
       ],
     }),
@@ -84,6 +88,19 @@ export async function promptGatewayConfig(
     );
     customBindHost = typeof input === "string" ? input : undefined;
   }
+
+  const advertiseHostInput = guardCancel(
+    await text({
+      message: "Gateway connect host (optional IP or DNS)",
+      placeholder: "openclaw-gateway or 10.8.0.1",
+      initialValue: cfg.gateway?.advertiseHost ?? "",
+      validate: validateGatewayAdvertiseHostInput,
+    }),
+    runtime,
+  );
+  const advertiseHost = normalizeGatewayAdvertiseHost(
+    typeof advertiseHostInput === "string" ? advertiseHostInput : undefined,
+  );
 
   let authMode = guardCancel(
     await select({
@@ -276,8 +293,9 @@ export async function promptGatewayConfig(
       mode: "local",
       port,
       bind,
+      customBindHost: bind === "custom" ? customBindHost : undefined,
+      advertiseHost,
       auth: authConfig,
-      ...(customBindHost && { customBindHost }),
       ...(trustedProxies && { trustedProxies }),
       tailscale: {
         ...next.gateway?.tailscale,

@@ -7,6 +7,7 @@ import { resolveGatewayLogPaths } from "../../daemon/launchd.js";
 import { formatRuntimeStatus } from "../../daemon/runtime-format.js";
 import { pickPrimaryLanIPv4 } from "../../gateway/net.js";
 import { getResolvedLoggerSettings } from "../../logging.js";
+import { normalizeGatewayAdvertiseHost } from "../../shared/net/host.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
 import { formatCliCommand } from "../command-format.js";
 import { parsePort } from "../shared/parse-port.js";
@@ -54,7 +55,12 @@ export function pickProbeHostForBind(
   bindMode: string,
   tailnetIPv4: string | undefined,
   customBindHost?: string,
+  advertiseHost?: string,
 ) {
+  const normalizedAdvertiseHost = normalizeGatewayAdvertiseHost(advertiseHost);
+  if (normalizedAdvertiseHost) {
+    return normalizedAdvertiseHost;
+  }
   if (bindMode === "custom" && customBindHost?.trim()) {
     return customBindHost.trim();
   }

@@ -54,6 +54,7 @@ async function runGatewayHealthCheck(params: {
     bind: params.cfg.gateway?.bind ?? "loopback",
     port: params.port,
     customBindHost: params.cfg.gateway?.customBindHost,
+    advertiseHost: params.cfg.gateway?.advertiseHost,
     basePath: undefined,
   });
   const remoteUrl = params.cfg.gateway?.remote?.url?.trim();
@@ -514,6 +515,7 @@ export async function runConfigureWizard(
       bind,
       port: gatewayPort,
       customBindHost: nextConfig.gateway?.customBindHost,
+      advertiseHost: nextConfig.gateway?.advertiseHost,
       basePath: nextConfig.gateway?.controlUi?.basePath,
     });
     // Try both new and old passwords since gateway may still have old config.

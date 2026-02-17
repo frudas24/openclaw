@@ -200,6 +200,7 @@ export async function finalizeOnboardingWizard(
       bind: nextConfig.gateway?.bind ?? "loopback",
       port: settings.port,
       customBindHost: nextConfig.gateway?.customBindHost,
+      advertiseHost: nextConfig.gateway?.advertiseHost,
       basePath: undefined,
     });
     // Daemon install/restart can briefly flap the WS; wait a bit so health check doesn't false-fail.
@@ -248,6 +249,7 @@ export async function finalizeOnboardingWizard(
     bind: settings.bind,
     port: settings.port,
     customBindHost: settings.customBindHost,
+    advertiseHost: nextConfig.gateway?.advertiseHost,
     basePath: controlUiBasePath,
   });
   const authedUrl =

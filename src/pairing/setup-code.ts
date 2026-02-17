@@ -1,5 +1,6 @@
 import os from "node:os";
 import type { OpenClawConfig } from "../config/types.js";
+import { normalizeGatewayAdvertiseHost } from "../shared/net/host.js";
 
 const DEFAULT_GATEWAY_PORT = 18789;
 
@@ -317,6 +318,11 @@ async function resolveGatewayUrl(
 
   if (remoteUrl) {
     return { url: remoteUrl, source: "gateway.remote.url" };
+  }
+
+  const advertiseHost = normalizeGatewayAdvertiseHost(cfg.gateway?.advertiseHost);
+  if (advertiseHost) {
+    return { url: `${scheme}://${advertiseHost}:${port}`, source: "gateway.advertiseHost" };
   }
 
   const bind = cfg.gateway?.bind ?? "loopback";

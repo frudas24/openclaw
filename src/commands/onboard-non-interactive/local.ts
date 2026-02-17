@@ -99,6 +99,7 @@ export async function runNonInteractiveOnboardingLocal(params: {
       bind: gatewayResult.bind as "auto" | "lan" | "loopback" | "custom" | "tailnet",
       port: gatewayResult.port,
       customBindHost: nextConfig.gateway?.customBindHost,
+      advertiseHost: nextConfig.gateway?.advertiseHost,
       basePath: undefined,
     });
     await waitForGatewayReachable({

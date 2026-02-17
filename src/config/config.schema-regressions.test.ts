@@ -13,6 +13,17 @@ describe("config schema regressions", () => {
     expect(res.ok).toBe(true);
   });
 
+  it("accepts gateway.advertiseHost with DNS hostname", () => {
+    const res = validateConfigObject({
+      gateway: {
+        bind: "lan",
+        advertiseHost: "openclaw-gateway",
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
+
   it("accepts nested telegram groupPolicy overrides", () => {
     const res = validateConfigObject({
       channels: {
